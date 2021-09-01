@@ -21,8 +21,14 @@ void realloc_pointer(unsigned char *package, int *len, size_t bytes)
     return;
 }
 
-UART::UART(char path[256], int o_flag, struct termios uart_config, int device_address)
+UART::UART(const char *path, int o_flag, int device_address, const char *student_id)
 {
+    struct termios uart_config;
+
+    uart_config.c_cflag = B9600 | CS8 | CLOCAL | CREAD;
+    uart_config.c_iflag = IGNPAR;
+    uart_config.c_oflag = 0;
+    uart_config.c_lflag = 0;
     this->uart_device = -1;
 
     this->uart_device = open(path, o_flag);
@@ -34,6 +40,7 @@ UART::UART(char path[256], int o_flag, struct termios uart_config, int device_ad
     tcsetattr(this->uart_device, TCSANOW, &uart_config);
 
     this->device_address = device_address;
+    this->student_id = (char *)student_id;
 }
 
 UART::~UART()
@@ -72,7 +79,7 @@ void UART::send_message(data_interface const *data)
 
     unsigned char *package;
     unsigned short crc;
-    int len = 5;
+    int len = 9;
 
     package = (unsigned char *)malloc(sizeof(char) * len);
 
@@ -80,45 +87,15 @@ void UART::send_message(data_interface const *data)
     package[1] = data->code;
     package[2] = data->sub_code;
 
+    memcpy((void *)(package + 3), this->student_id, strlen(this->student_id));
+
     if (data->code == WRITE)
     {
-        switch (data->sub_code)
-        {
-        case WT_INT:
-        {
-            realloc_pointer(package, &len, sizeof(int));
+        realloc_pointer(package, &len, sizeof(int));
 
-            memcpy((void *)(package + 3), data->data, sizeof(int));
+        memcpy((void *)(package + 7), data->data, sizeof(int));
 
-            write_uart(&data->data, sizeof(int));
-
-            break;
-        }
-        case WT_FLT:
-        {
-            realloc_pointer(package, &len, sizeof(float));
-
-            memcpy((void *)(package + 3), data->data, sizeof(float));
-
-            write_uart(&data->data, sizeof(float));
-            break;
-        }
-        case WT_CHR:
-        {
-            size_t length = sizeof(data->data);
-
-            realloc_pointer(package, &len, 1 + length);
-
-            memcpy((void *)(package + 3), (void *)&length, sizeof(char));
-            memcpy((void *)(package + 4), data->data, sizeof(char) * length);
-
-            break;
-        }
-
-        default:
-            throw "Wrong option code";
-            break;
-        }
+        // write_uart(&data->data, sizeof(int));
     }
 
     crc = calcula_CRC(package, len - 2);
@@ -154,39 +131,23 @@ void UART::read_message(data_interface *data)
 
     switch (data->sub_code)
     {
-    case RD_INT:
-    case WT_INT:
+    case READ_STATE:
         data_bytes = sizeof(int);
         data->data = malloc(sizeof(int));
 
         break;
-    case RD_FLT:
-    case WT_FLT:
+    case READ_TI:
+    case READ_TR:
         data_bytes = sizeof(float);
         data->data = malloc(sizeof(float));
 
         break;
-    case RD_CHR:
-    case WT_CHR:
-        char string_size;
-
-        read_uart((void *)&string_size, 1);
-
-        data_bytes = (int)string_size;
-
-        data->data = malloc(sizeof(char) * data_bytes + 1);
-
-        break;
-
     default:
         throw "Wrong option code";
         break;
     }
 
     read_uart(data->data, data_bytes);
-
-    if (data->sub_code == RD_CHR || data->sub_code == WT_CHR)
-        read_uart((void *)&data->crc1, 1);
 
     read_uart((void *)&data->crc1, 1);
     read_uart((void *)&data->crc2, 1);
