@@ -17,7 +17,7 @@ PWM::~PWM()
 void PWM::send(int value)
 {
     if (value > 0)
-        softPwmWrite(this->pin, 0);
+        softPwmWrite(this->pin == FAN ? RESISTOR : FAN, 0);
 
     softPwmWrite(this->pin, value);
 }
