@@ -5,14 +5,12 @@
 #include <termios.h>
 
 #define READ 0x23
-#define RD_INT 0xA1
-#define RD_FLT 0xA2
-#define RD_CHR 0xA3
+#define READ_TI 0xC1
+#define READ_TR 0xC2
+#define READ_STATE 0xC3
 
 #define WRITE 0x16
-#define WT_INT 0xB1
-#define WT_FLT 0xB2
-#define WT_CHR 0xB3
+#define WRITE_SIGNAL 0xD1
 
 using namespace std;
 
@@ -29,12 +27,13 @@ class UART
 private:
     int uart_device;
     char device_address;
+    char *student_id;
 
     void write_uart(const void *buffer, size_t bytes);
     void read_uart(void *buffer, size_t bytes);
 
 public:
-    UART(char path[256], int o_flag, struct termios uart_config, int device_address);
+    UART(const char *path, int o_flag, int device_address, const char *student_id);
     ~UART();
 
     void send_message(data_interface const *data);
