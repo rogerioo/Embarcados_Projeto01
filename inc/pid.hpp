@@ -1,8 +1,23 @@
 #ifndef PID_HPP
 #define PID_HPP
 
-void pid_configura_constantes(double Kp_, double Ki_, double Kd_);
-void pid_atualiza_referencia(float referencia_);
-double pid_controle(double saida_medida);
+class PID
+{
+private:
+    int control_signal_MAX, control_signal_MIN;
+    double total_error, previous_error;
+    unsigned long last_time;
+    double control_signal;
+    double reference;
+    double Kp, Ki, Kd;
+    int sample_period;
+
+public:
+    PID(double Kp_, double Ki_, double Kd_);
+    ~PID();
+
+    void set_reference(float reference);
+    double get_pid(double input);
+};
 
 #endif

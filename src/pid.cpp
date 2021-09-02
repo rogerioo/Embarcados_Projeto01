@@ -1,58 +1,52 @@
 #include "pid.hpp"
 
-double saida_medida, sinal_de_controle;
-double referencia = 0.0;
-double Kp = 0.0; // Ganho Proporcional
-double Ki = 0.0; // Ganho Integral
-double Kd = 0.0; // Ganho Derivativo
-int T = 1.0;     // Período de Amostragem (ms)
-unsigned long last_time;
-double erro_total, erro_anterior = 0.0;
-int sinal_de_controle_MAX = 100.0;
-int sinal_de_controle_MIN = -100.0;
-
-void pid_configura_constantes(double Kp_, double Ki_, double Kd_)
+PID::PID(double Kp_, double Ki_, double Kd_)
 {
-    Kp = Kp_;
-    Ki = Ki_;
-    Kd = Kd_;
+    this->control_signal_MIN = -100.0;
+    this->control_signal_MAX = 100.0;
+    this->previous_error = 0.0;
+    this->sample_period = 1.0;
+    this->reference = 0.0;
+    this->Kp = Kp_;
+    this->Ki = Ki_;
+    this->Kd = Kd_;
 }
 
-void pid_atualiza_referencia(float referencia_)
+void PID::set_reference(float reference)
 {
-    referencia = (double)referencia_;
+    this->reference = (double)reference;
 }
 
-double pid_controle(double saida_medida)
+double PID::get_pid(double internal_temperature)
 {
 
-    double erro = referencia - saida_medida;
+    double erro = this->reference - internal_temperature;
 
-    erro_total += erro; // Acumula o erro (Termo Integral)
+    this->total_error += erro; // Acumula o erro (Termo Integral)
 
-    if (erro_total >= sinal_de_controle_MAX)
+    if (this->total_error >= this->control_signal_MAX)
     {
-        erro_total = sinal_de_controle_MAX;
+        this->total_error = this->control_signal_MAX;
     }
-    else if (erro_total <= sinal_de_controle_MIN)
+    else if (this->total_error <= this->control_signal_MIN)
     {
-        erro_total = sinal_de_controle_MIN;
-    }
-
-    double delta_error = erro - erro_anterior; // Diferença entre os erros (Termo Derivativo)
-
-    sinal_de_controle = Kp * erro + (Ki * T) * erro_total + (Kd / T) * delta_error; // PID calcula sinal de controle
-
-    if (sinal_de_controle >= sinal_de_controle_MAX)
-    {
-        sinal_de_controle = sinal_de_controle_MAX;
-    }
-    else if (sinal_de_controle <= sinal_de_controle_MIN)
-    {
-        sinal_de_controle = sinal_de_controle_MIN;
+        this->total_error = this->control_signal_MIN;
     }
 
-    erro_anterior = erro;
+    double delta_error = erro - this->previous_error; // Diferença entre os erros (Termo Derivativo)
 
-    return sinal_de_controle;
+    this->control_signal = this->Kp * erro + (this->Ki * this->sample_period) * this->total_error + (this->Kd / this->sample_period) * delta_error; // PID calcula sinal de controle
+
+    if (this->control_signal >= this->control_signal_MAX)
+    {
+        this->control_signal = this->control_signal_MAX;
+    }
+    else if (this->control_signal <= this->control_signal_MIN)
+    {
+        this->control_signal = this->control_signal_MIN;
+    }
+
+    this->previous_error = erro;
+
+    return this->control_signal;
 }
