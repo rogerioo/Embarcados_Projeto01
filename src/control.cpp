@@ -124,7 +124,10 @@ void Control::go()
             this->fan->send(-control_signal);
 
         else
+        {
             this->resistor->send(0);
+            this->fan->send(0);
+        }
 
         this->csv->write_line(internal_temperature, external_temperature, reference_temperature, control_signal);
 

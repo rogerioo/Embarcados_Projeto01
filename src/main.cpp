@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <signal.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -14,9 +15,22 @@ float internal_temperature = 0;
 float external_temperature = 0;
 int key_state = -1;
 
+Control *control = new Control();
+
+void quit(int signal)
+{
+    cout << "Killing system" << endl;
+
+    delete control;
+
+    exit(0);
+}
+
 int main(int argc, char *argv[])
 {
-    Control *control = new Control();
+
+    signal(SIGINT, quit);
+
     // Display *display = new Display();
     // display_message data;
 
