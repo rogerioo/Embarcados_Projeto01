@@ -81,7 +81,7 @@ void UART::send_message(data_interface const *data)
     unsigned short crc;
     int len = 9;
 
-    package = (unsigned char *)malloc(sizeof(char) * len);
+    package = (unsigned char *)malloc(sizeof(unsigned char *) * len + 1);
 
     package[0] = this->device_address;
     package[1] = data->code;
