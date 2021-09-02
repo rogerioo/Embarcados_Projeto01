@@ -14,6 +14,8 @@
 
 using namespace std;
 
+extern char student_id[4];
+
 struct data_interface
 {
     char code, sub_code;
@@ -27,13 +29,12 @@ class UART
 private:
     int uart_device;
     char device_address;
-    char *student_id;
 
     void write_uart(const void *buffer, size_t bytes);
     void read_uart(void *buffer, size_t bytes);
 
 public:
-    UART(const char *path, int o_flag, int device_address, const char *student_id);
+    UART(const char *path, int o_flag, int device_address);
     ~UART();
 
     void send_message(data_interface const *data);

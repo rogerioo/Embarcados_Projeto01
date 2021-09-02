@@ -9,6 +9,8 @@
 
 using namespace std;
 
+char student_id[4] = {1, 7, 5, 1};
+
 void realloc_pointer(unsigned char *package, int *len, size_t bytes)
 {
     unsigned char *tmp = package;
@@ -21,7 +23,7 @@ void realloc_pointer(unsigned char *package, int *len, size_t bytes)
     return;
 }
 
-UART::UART(const char *path, int o_flag, int device_address, const char *student_id)
+UART::UART(const char *path, int o_flag, int device_address)
 {
     struct termios uart_config;
 
@@ -40,7 +42,6 @@ UART::UART(const char *path, int o_flag, int device_address, const char *student
     tcsetattr(this->uart_device, TCSANOW, &uart_config);
 
     this->device_address = device_address;
-    this->student_id = (char *)student_id;
 }
 
 UART::~UART()
@@ -87,7 +88,7 @@ void UART::send_message(data_interface const *data)
     package[1] = data->code;
     package[2] = data->sub_code;
 
-    memcpy((void *)(package + 3), this->student_id, strlen(this->student_id));
+    memcpy((void *)(package + 3), student_id, strlen(student_id));
 
     if (data->code == WRITE)
     {
