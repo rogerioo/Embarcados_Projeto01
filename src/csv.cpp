@@ -23,7 +23,7 @@ string get_time_now(const char *separator, const char *time_separator)
         << time_separator
         << setw(2) << setfill('0') << now->tm_min
         << time_separator
-        << setw(2) << setfill('0') << now->tm_sec - 1;
+        << setw(2) << setfill('0') << now->tm_sec;
 
     return str.str();
 }
