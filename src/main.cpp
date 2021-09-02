@@ -7,6 +7,7 @@
 #include "display.hpp"
 #include "bme280.hpp"
 #include "uart.hpp"
+#include "pwm.hpp"
 
 #define DELAY 1000000
 
@@ -22,6 +23,12 @@ int main(int argc, char *argv[])
 
     BME280 *sensor = new BME280(1, 0x76);
     sensor_data *sensor_out = sensor->get_data();
+
+    PWM *resistor = new PWM(RESISTOR);
+    PWM *fan = new PWM(FAN);
+
+    resistor->send(15);
+    fan->send(50);
 
     data.message = "T: ";
     data.data = (const void *)&sensor_out->temperature;
@@ -82,6 +89,9 @@ int main(int argc, char *argv[])
     uart->send_message(&request);
 
     free(request.data);
+
+    delete fan;
+    delete resistor;
 
     return 0;
 }

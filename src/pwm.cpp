@@ -11,6 +11,7 @@ PWM::PWM(int pin)
 
 PWM::~PWM()
 {
+    this->send(0);
     softPwmStop(this->pin);
 }
 
