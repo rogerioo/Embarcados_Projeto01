@@ -62,6 +62,13 @@ void Control::set_internal_temperature()
     free(response.data);
 }
 
+void Control::set_external_temperature()
+{
+    sensor_data *sensor_out = this->sensor->get_data();
+
+    external_temperature = sensor_out->temperature;
+}
+
 void Control::set_key_state()
 {
     data_interface request, response;
@@ -99,6 +106,7 @@ void Control::go()
     {
         this->set_potentiometer_temperature();
         this->set_internal_temperature();
+        this->set_external_temperature();
         this->set_key_state();
 
         float reference_temperature = user_temperature == -100 ? potentiometer_temperature : user_temperature;
@@ -118,7 +126,7 @@ void Control::go()
         else
             this->resistor->send(0);
 
-        this->csv->write_line(internal_temperature, 0, reference_temperature, control_signal, 0);
+        this->csv->write_line(internal_temperature, external_temperature, reference_temperature, control_signal);
 
         cout << "TI: " << internal_temperature << endl;
         cout << "TR: " << reference_temperature << endl;

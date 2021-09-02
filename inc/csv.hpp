@@ -15,7 +15,7 @@ public:
     CSV();
     ~CSV();
 
-    void write_line(float internal_temperature, float external_temperature, float reference_temperature, int resistor, int fan);
+    void write_line(float internal_temperature, float external_temperature, float reference_temperature, int control_signal);
 };
 
 #endif // CSV_HPP

@@ -8,10 +8,11 @@
 
 using namespace std;
 
-float potentiometer_temperature;
+float potentiometer_temperature = 0;
 float user_temperature = -100;
-float internal_temperature;
-int key_state;
+float internal_temperature = 0;
+float external_temperature = 0;
+int key_state = -1;
 
 int main(int argc, char *argv[])
 {

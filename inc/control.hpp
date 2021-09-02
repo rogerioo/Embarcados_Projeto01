@@ -10,6 +10,7 @@
 
 extern float potentiometer_temperature;
 extern float internal_temperature;
+extern float external_temperature;
 extern float user_temperature;
 extern int key_state;
 
@@ -26,6 +27,7 @@ private:
     void send_control_signal(int control_signal);
     void set_potentiometer_temperature();
     void set_internal_temperature();
+    void set_external_temperature();
     void set_key_state();
 
 public:

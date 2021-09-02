@@ -44,12 +44,11 @@ CSV::~CSV()
     this->file.close();
 }
 
-void CSV::write_line(float internal_temperature, float external_temperature, float reference_temperature, int resistor, int fan)
+void CSV::write_line(float internal_temperature, float external_temperature, float reference_temperature, int control_signal)
 {
     this->file << get_time_now(" ", ":") << ","
                << internal_temperature << ","
                << external_temperature << ","
                << reference_temperature << ","
-               << resistor << ","
-               << fan << endl;
+               << control_signal << endl;
 }
