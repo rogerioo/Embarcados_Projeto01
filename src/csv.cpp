@@ -32,7 +32,7 @@ CSV::CSV()
 {
     stringstream filename;
 
-    filename << "control_log_"
+    filename << "logs/control_log_"
              << get_time_now("_", "-")
              << "_.csv";
 
