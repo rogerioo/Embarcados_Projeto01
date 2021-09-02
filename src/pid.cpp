@@ -12,6 +12,8 @@ PID::PID(double Kp_, double Ki_, double Kd_)
     this->Kd = Kd_;
 }
 
+PID::~PID() {}
+
 void PID::set_reference(float reference)
 {
     this->reference = (double)reference;

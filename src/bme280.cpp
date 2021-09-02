@@ -204,6 +204,8 @@ BME280::BME280(int channel, int address)
     printf("BME280 device successfully opened.\n");
 }
 
+BME280::~BME280() {}
+
 sensor_data *BME280::get_data()
 {
     int T, P, H;
