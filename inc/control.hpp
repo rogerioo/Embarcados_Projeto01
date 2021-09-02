@@ -8,10 +8,14 @@
 #include "pid.hpp"
 #include "csv.hpp"
 
+#define CONTROL_ON_OFF 0
+#define CONTROL_PID 1
+
 extern float potentiometer_temperature;
 extern float internal_temperature;
 extern float external_temperature;
 extern float user_temperature;
+extern int hysteresis;
 extern int key_state;
 
 class Control
@@ -24,11 +28,16 @@ private:
     PID *pid;
     CSV *csv;
 
+    int last_on_off;
+
     void send_control_signal(int control_signal);
     void set_potentiometer_temperature();
     void set_internal_temperature();
     void set_external_temperature();
     void set_key_state();
+
+    int set_pid_control_signal(float reference_temperature);
+    int set_on_off_signal(float reference_temperature);
 
 public:
     Control();

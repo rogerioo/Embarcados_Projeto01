@@ -20,6 +20,8 @@ Control::Control()
     this->pid = new PID(5.0, 1.0, 5.0);
 
     this->csv = new CSV();
+
+    this->last_on_off = 0;
 }
 
 Control::~Control()
@@ -100,6 +102,44 @@ void Control::send_control_signal(int control_signal)
     free(request.data);
 }
 
+int Control::set_pid_control_signal(float reference_temperature)
+{
+    this->pid->set_reference(reference_temperature);
+
+    int control_signal = (int)this->pid->get_pid(internal_temperature);
+
+    if (control_signal >= 0)
+        this->resistor->send(control_signal);
+
+    else if (control_signal <= -40)
+        this->fan->send(-control_signal);
+
+    else
+    {
+        this->resistor->send(0);
+        this->fan->send(0);
+    }
+
+    return control_signal;
+}
+
+int Control::set_on_off_signal(float reference_temperature)
+{
+    int control_signal = this->last_on_off;
+
+    float bottom = reference_temperature - hysteresis / 2.0;
+    float top = reference_temperature + hysteresis / 2.0;
+
+    if (internal_temperature >= top)
+        control_signal = -100, this->fan->send(100);
+    else if (internal_temperature <= bottom)
+        control_signal = 100, this->resistor->send(100);
+
+    this->last_on_off = control_signal;
+
+    return control_signal;
+}
+
 void Control::go()
 {
     while (1)
@@ -111,23 +151,17 @@ void Control::go()
 
         float reference_temperature = user_temperature == -100 ? potentiometer_temperature : user_temperature;
 
-        this->pid->set_reference(reference_temperature);
+        int control_signal;
 
-        double control_signal = this->pid->get_pid(internal_temperature);
-
-        this->send_control_signal((int)control_signal);
-
-        if (control_signal >= 0)
-            this->resistor->send(control_signal);
-
-        else if (control_signal <= -40)
-            this->fan->send(-control_signal);
-
-        else
+        if (key_state == CONTROL_ON_OFF)
+            control_signal = this->set_on_off_signal(reference_temperature);
+        else if (key_state == CONTROL_PID)
         {
-            this->resistor->send(0);
-            this->fan->send(0);
+            control_signal = this->set_pid_control_signal(reference_temperature);
+            this->last_on_off = 0;
         }
+
+        this->send_control_signal(control_signal);
 
         this->csv->write_line(internal_temperature, external_temperature, reference_temperature, control_signal);
 

@@ -13,6 +13,7 @@ float potentiometer_temperature = 0;
 float user_temperature = -100;
 float internal_temperature = 0;
 float external_temperature = 0;
+int hysteresis = 3;
 int key_state = -1;
 
 Control *control = new Control();
