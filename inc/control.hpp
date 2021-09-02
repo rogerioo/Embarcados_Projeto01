@@ -6,6 +6,7 @@
 #include "uart.hpp"
 #include "pwm.hpp"
 #include "pid.hpp"
+#include "csv.hpp"
 
 extern float potentiometer_temperature;
 extern float internal_temperature;
@@ -20,6 +21,7 @@ private:
     UART *uart;
     PWM *fan;
     PID *pid;
+    CSV *csv;
 
     void send_control_signal(int control_signal);
     void set_potentiometer_temperature();

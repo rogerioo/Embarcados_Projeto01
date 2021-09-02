@@ -18,6 +18,8 @@ Control::Control()
     this->fan = new PWM(FAN);
 
     this->pid = new PID(5.0, 1.0, 5.0);
+
+    this->csv = new CSV();
 }
 
 Control::~Control()
@@ -27,6 +29,7 @@ Control::~Control()
     delete this->uart;
     delete this->fan;
     delete this->pid;
+    delete this->csv;
 }
 
 void Control::set_potentiometer_temperature()
@@ -114,6 +117,8 @@ void Control::go()
 
         else
             this->resistor->send(0);
+
+        this->csv->write_line(internal_temperature, 0, reference_temperature, control_signal, 0);
 
         cout << "TI: " << internal_temperature << endl;
         cout << "TR: " << reference_temperature << endl;
