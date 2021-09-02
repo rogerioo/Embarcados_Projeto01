@@ -8,6 +8,7 @@
 #include "bme280.hpp"
 #include "uart.hpp"
 #include "pwm.hpp"
+#include "pid.hpp"
 
 #define DELAY 1000000
 
@@ -15,7 +16,9 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+    float internal_temperature, reference_temperature;
     char student_id[] = {1, 7, 5, 1};
+
     UART *uart = new UART("/dev/serial0", O_RDWR | O_NOCTTY | O_NDELAY, 0x01, student_id);
 
     Display *display = new Display();
@@ -27,8 +30,11 @@ int main(int argc, char *argv[])
     PWM *resistor = new PWM(RESISTOR);
     PWM *fan = new PWM(FAN);
 
-    resistor->send(15);
-    fan->send(50);
+    PID *pid = new PID(5.0, 1.0, 5.0);
+
+    // resistor->send(100);
+    fan->send(100);
+    sleep(60);
 
     data.message = "T: ";
     data.data = (const void *)&sensor_out->temperature;
@@ -55,6 +61,8 @@ int main(int argc, char *argv[])
     cout << "\nTI:" << endl;
     cout << (*((float *)response.data)) << endl;
 
+    internal_temperature = (*((float *)response.data));
+
     free(response.data);
 
     request.code = READ;
@@ -65,6 +73,8 @@ int main(int argc, char *argv[])
 
     cout << "\nTR:" << endl;
     cout << (*((float *)response.data)) << endl;
+
+    reference_temperature = (*((float *)response.data));
 
     free(response.data);
 
@@ -89,6 +99,10 @@ int main(int argc, char *argv[])
     uart->send_message(&request);
 
     free(request.data);
+
+    pid->set_reference(reference_temperature);
+
+    printf("PID: %.0lf\n", pid->get_pid(internal_temperature));
 
     delete fan;
     delete resistor;

@@ -94,8 +94,6 @@ void UART::send_message(data_interface const *data)
         realloc_pointer(package, &len, sizeof(int));
 
         memcpy((void *)(package + 7), data->data, sizeof(int));
-
-        // write_uart(&data->data, sizeof(int));
     }
 
     crc = calcula_CRC(package, len - 2);
