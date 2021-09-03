@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "control.hpp"
+#include "screen.hpp"
 
 using namespace std;
 
@@ -32,6 +33,10 @@ int main(int argc, char *argv[])
 
     signal(SIGINT, quit);
 
+    Screen screen;
+
+    sleep(10);
+
     // Display *display = new Display();
     // display_message data;
 
@@ -49,7 +54,7 @@ int main(int argc, char *argv[])
     // data.message = "%";
     // display->write_lcd(0, CHAR_MSG, &data);
 
-    control->go();
+    // control->go();
 
     return 0;
 }
