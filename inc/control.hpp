@@ -18,6 +18,11 @@ extern float user_temperature;
 extern int hysteresis;
 extern int key_state;
 
+extern bool RESISTOR_status;
+extern bool BME280_status;
+extern bool UART_status;
+extern bool FAN_status;
+
 class Control
 {
 private:

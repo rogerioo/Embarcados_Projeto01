@@ -9,10 +9,25 @@
 #include <string>
 #include <stdlib.h>
 #include <vector>
+#include <utility>
+#include <algorithm>
 #include <signal.h>
 #include <unistd.h>
 
 using namespace std;
+
+extern float potentiometer_temperature;
+extern float internal_temperature;
+extern float external_temperature;
+extern float user_temperature;
+extern int hysteresis;
+extern int key_state;
+
+extern bool RESISTOR_status;
+extern bool BME280_status;
+extern bool UART_status;
+extern bool LCD_display;
+extern bool FAN_status;
 
 class Screen
 {
@@ -28,6 +43,7 @@ private:
     ITEM **menu_items;
 
     vector<string> menu_options;
+    vector<pair<string, bool>> system_devices;
 
     int max_height, max_width;
 

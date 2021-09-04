@@ -1,5 +1,5 @@
 CC := g++
-CFLAGS := -Wall -std=c++11 -lwiringPi -lncurses -lmenu
+CFLAGS := -Wall -std=c++14 -lwiringPi -lncurses -lmenu
 
 SRCFILES := $(wildcard src/*.cpp)
 
