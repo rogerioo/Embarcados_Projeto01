@@ -20,6 +20,11 @@ extern float potentiometer_temperature;
 extern float internal_temperature;
 extern float external_temperature;
 extern float user_temperature;
+extern int user_hysteresis;
+extern int user_key_state;
+extern int user_pid_kp;
+extern int user_pid_ki;
+extern int user_pid_kd;
 extern int hysteresis;
 extern int key_state;
 
@@ -50,6 +55,8 @@ private:
     void set_menu();
     void set_header();
     void set_status();
+
+    void set_input_mode(vector<string> message, int option);
 
 public:
     Screen();

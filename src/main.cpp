@@ -10,8 +10,14 @@
 
 using namespace std;
 
-float potentiometer_temperature = 0;
 float user_temperature = -100;
+int user_hysteresis = -1;
+int user_key_state = -1;
+int user_pid_kp = -1;
+int user_pid_ki = -1;
+int user_pid_kd = -1;
+
+float potentiometer_temperature = 0;
 float internal_temperature = 0;
 float external_temperature = 0;
 int hysteresis = 3;

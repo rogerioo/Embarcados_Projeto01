@@ -30,7 +30,7 @@ Screen::Screen() : box_external_temperature(nullptr),
 {
     initscr();
     noecho();
-    curs_set(0);
+    curs_set(false);
 
     getmaxyx(stdscr, max_height, max_width);
 
@@ -143,7 +143,7 @@ void Screen::set_menu()
 
     /* Set main window and sub window */
     set_menu_win(menu_controller, box_menu);
-    set_menu_sub(menu_controller, subwin(box_menu, 6, (max_width / 2) - 4, (max_height / 2), 1));
+    set_menu_sub(menu_controller, subwin(box_menu, 6, (max_width / 2) - 4, 8, 1));
 
     /* Set menu mark to the string " * " */
     set_menu_mark(menu_controller, " > ");
@@ -172,14 +172,147 @@ void Screen::menu_deamon()
         case ENTER_KEY:
             auto selected_item = item_name(current_item(menu_controller));
 
-            mvwprintw(box_menu, 0, 1, "%s", selected_item);
+            switch (*selected_item)
+            {
+            case '1':
+                set_input_mode({"Enter the Control Strategy:",
+                                "",
+                                "(0) ON/OFF",
+                                "",
+                                "(1) PID"},
+                               1);
+                break;
+            case '2':
+                set_input_mode({"Enter the Temperature: "}, 2);
+                break;
+            case '3':
+                set_input_mode({"Enter the Hysterese: "}, 3);
+                break;
+            case '4':
+                set_input_mode({"Enter the PID parameters "}, 4);
+                break;
 
-            if (*selected_item == '5')
-                // mvwprintw(box_menu, 0, 1, "%s", selected_item);
+            case '5':
                 kill(getpid(), SIGINT);
+                break;
+            }
 
             break;
         }
         wrefresh(box_menu);
     }
+}
+
+void Screen::set_input_mode(vector<string> message, int option)
+{
+    int window_height, window_width;
+    int back_to_auto;
+
+    getmaxyx(box_menu, window_height, window_width);
+
+    int begin_y = window_height - 1 - message.size() - 2;
+
+    echo();
+    curs_set(true);
+
+    mvwprintw(box_menu, begin_y + message.size() + 1, 3, "Want to set it auto? (1 Yes / 2 No): ");
+    wrefresh(box_menu);
+
+    wscanw(box_menu, "%d", &back_to_auto);
+
+    mvwprintw(box_menu, begin_y + message.size() + 1, 3, "                                      ");
+    wrefresh(box_menu);
+
+    if (back_to_auto == 1)
+    {
+        switch (option)
+        {
+        case 1:
+            user_key_state = -1;
+            break;
+        case 2:
+            user_key_state = -100;
+            break;
+        case 3:
+            user_key_state = -1;
+            break;
+        case 4:
+            user_pid_ki = -1;
+            user_pid_kd = -1;
+            user_pid_kp = -1;
+
+            break;
+        default:
+            break;
+        }
+
+        noecho();
+        curs_set(false);
+
+        return;
+    }
+
+    for (size_t i = 0; i < message.size(); i++)
+    {
+        if (message[i] == "")
+            continue;
+        mvwprintw(box_menu, begin_y + i, 3, message[i].c_str());
+    }
+
+    wrefresh(box_menu);
+
+    switch (option)
+    {
+    case 1:
+        if (back_to_auto == 1)
+        {
+            user_key_state = -1;
+            break;
+        }
+        wscanw(box_menu, "%d", &user_key_state);
+        break;
+    case 2:
+        if (back_to_auto == 1)
+        {
+            user_key_state = -100;
+            break;
+        }
+        wscanw(box_menu, "%d", &user_temperature);
+        break;
+    case 3:
+        wscanw(box_menu, "%d", &user_hysteresis);
+        break;
+    case 4:
+        mvwprintw(box_menu, begin_y + message.size() + 1, 3, "Enter the KP: ");
+        wrefresh(box_menu);
+        wscanw(box_menu, "%d", &user_pid_kp);
+
+        mvwprintw(box_menu, begin_y + message.size() + 1, 3, "               ");
+        wrefresh(box_menu);
+        mvwprintw(box_menu, begin_y + message.size() + 1, 3, "Enter the KI: ");
+        wrefresh(box_menu);
+        wscanw(box_menu, "%d", &user_pid_kp);
+
+        mvwprintw(box_menu, begin_y + message.size() + 1, 3, "               ");
+        wrefresh(box_menu);
+        mvwprintw(box_menu, begin_y + message.size() + 1, 3, "Enter the KD: ");
+        wrefresh(box_menu);
+        wscanw(box_menu, "%d", &user_pid_kp);
+
+        break;
+    default:
+        break;
+    }
+
+    noecho();
+    curs_set(false);
+
+    string clear_string(window_width - 2, ' ');
+
+    for (size_t i = 0; i < message.size() + 2; i++)
+    {
+        mvwprintw(box_menu, begin_y + i, 1, clear_string.c_str());
+    }
+
+    wrefresh(box_menu);
 }
