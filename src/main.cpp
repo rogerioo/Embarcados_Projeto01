@@ -18,10 +18,11 @@ int hysteresis = 3;
 int key_state = -1;
 
 Control *control = new Control();
+Screen *screen = new Screen();
 
 void quit(int signal)
 {
-    cout << "Killing system" << endl;
+    delete screen;
 
     delete control;
 
@@ -33,9 +34,11 @@ int main(int argc, char *argv[])
 
     signal(SIGINT, quit);
 
-    Screen screen;
+    screen->menu_deamon();
 
-    sleep(10);
+    // Screen screen;
+
+    // sleep(10);
 
     // Display *display = new Display();
     // display_message data;
