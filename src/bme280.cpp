@@ -40,19 +40,15 @@ int BME280::bme280Init(int iChannel, int iAddr)
     rc = write(file_i2c, ucTemp, 1);
     i = read(file_i2c, ucTemp, 1);
     if (rc < 0 || i != 1 || ucTemp[0] != 0x60)
-    {
-        printf("Error, ID doesn't match 0x60; wrong device?\n");
-        return -1;
-    }
+        throw "Error, ID doesn't match 0x60; wrong device?";
+
     // Read 24 bytes of calibration data
     ucTemp[0] = 0x88; // starting 4from register 0x88
     rc = write(file_i2c, ucTemp, 1);
     i = read(file_i2c, ucCal, 24);
     if (rc < 0 || i != 24)
-    {
-        printf("calibration data not read correctly\n");
-        return -1;
-    }
+        throw "calibration data not read correctly";
+
     ucTemp[0] = 0xa1; // get humidity calibration byte
     rc = write(file_i2c, ucTemp, 1);
     i = read(file_i2c, &ucCal[24], 1);
@@ -200,8 +196,6 @@ BME280::BME280(int channel, int address)
 
     if (i != 0)
         throw "Couldn't open BME280";
-
-    printf("BME280 device successfully opened.\n");
 }
 
 BME280::~BME280() {}
@@ -213,7 +207,6 @@ sensor_data *BME280::get_data()
     usleep(10000);
 
     this->bme280ReadValues(&T, &P, &H);
-    printf("Read values from BME280.\n");
 
     T -= 150;
 

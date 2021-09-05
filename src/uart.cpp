@@ -75,9 +75,6 @@ void UART::read_uart(void *buffer, size_t bytes)
 
 void UART::send_message(data_interface const *data)
 {
-
-    std::cout << "Writing on UART...\n";
-
     unsigned char *package;
     unsigned short crc;
     int len = 9;
@@ -109,8 +106,6 @@ void UART::send_message(data_interface const *data)
 
     sleep(1);
 
-    std::cout << "Task complete successfuly\n";
-
     free(package);
 
     return;
@@ -118,8 +113,6 @@ void UART::send_message(data_interface const *data)
 
 void UART::read_message(data_interface *data)
 {
-    std::cout << "Reading from UART...\n";
-
     int data_bytes = 0;
 
     read_uart((void *)&data->address, sizeof(char));
@@ -150,8 +143,6 @@ void UART::read_message(data_interface *data)
 
     read_uart((void *)&data->crc1, 1);
     read_uart((void *)&data->crc2, 1);
-
-    std::cout << "Task complete successfuly\n";
 
     return;
 }
