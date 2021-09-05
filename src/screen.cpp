@@ -14,7 +14,7 @@ Screen::Screen() : box_external_temperature(nullptr),
                    menu_controller(nullptr),
                    menu_items(nullptr),
                    menu_options({"1. Modify Control Strategy",
-                                 "2. Modify Manual Temperature",
+                                 "2. Modify Temperature",
                                  "3. Modify Hysterese",
                                  "4. Modify PID Parameters",
                                  " ",
@@ -157,11 +157,12 @@ void Screen::menu_deamon()
 
     // wrefresh(box_menu);
 
-    int c;
+    int user_input;
 
-    while ((c = wgetch(box_menu)) != 'a')
+    while (not abort_deamon)
     {
-        switch (c)
+        user_input = wgetch(box_menu);
+        switch (user_input)
         {
         case KEY_DOWN:
             menu_driver(menu_controller, REQ_DOWN_ITEM);
@@ -213,7 +214,6 @@ void Screen::set_input_mode(vector<string> message, int option)
     int begin_y = window_height - 1 - message.size() - 2;
 
     echo();
-    curs_set(true);
 
     mvwprintw(box_menu, begin_y + message.size() + 1, 3, "Want to set it auto? (1 Yes / 2 No): ");
     wrefresh(box_menu);
@@ -247,7 +247,6 @@ void Screen::set_input_mode(vector<string> message, int option)
         }
 
         noecho();
-        curs_set(false);
 
         return;
     }
@@ -264,20 +263,10 @@ void Screen::set_input_mode(vector<string> message, int option)
     switch (option)
     {
     case 1:
-        if (back_to_auto == 1)
-        {
-            user_key_state = -1;
-            break;
-        }
         wscanw(box_menu, "%d", &user_key_state);
         break;
     case 2:
-        if (back_to_auto == 1)
-        {
-            user_key_state = -100;
-            break;
-        }
-        wscanw(box_menu, "%d", &user_temperature);
+        wscanw(box_menu, "%f", &user_temperature);
         break;
     case 3:
         wscanw(box_menu, "%d", &user_hysteresis);
@@ -305,7 +294,6 @@ void Screen::set_input_mode(vector<string> message, int option)
     }
 
     noecho();
-    curs_set(false);
 
     string clear_string(window_width - 2, ' ');
 
@@ -315,4 +303,32 @@ void Screen::set_input_mode(vector<string> message, int option)
     }
 
     wrefresh(box_menu);
+}
+
+void Screen::data_update_deamon()
+{
+    int box_control_mode_height, box_control_mode_width;
+    int box_reference_height, box_reference_width;
+    int box_external_height, box_external_width;
+    int box_internal_height, box_internal_width;
+
+    getmaxyx(box_reference_temperature, box_reference_height, box_reference_width);
+    getmaxyx(box_control_mode, box_control_mode_height, box_control_mode_width);
+    getmaxyx(box_external_temperature, box_external_height, box_external_width);
+    getmaxyx(box_internal_temperature, box_internal_height, box_internal_width);
+
+    while (not abort_deamon)
+    {
+        mvwprintw(box_external_temperature, 2, box_external_width / 2, "%.2f", external_temperature);
+        mvwprintw(box_internal_temperature, 2, box_internal_width / 2, "%.2f", internal_temperature);
+        mvwprintw(box_reference_temperature, 2, box_reference_width / 2, "%.2f", user_temperature == -100 ? potentiometer_temperature : user_temperature);
+        mvwprintw(box_control_mode, 2, box_control_mode_width / 2, "%d", user_key_state == -1 ? key_state : user_key_state);
+
+        wrefresh(box_external_temperature);
+        wrefresh(box_internal_temperature);
+        wrefresh(box_reference_temperature);
+        wrefresh(box_control_mode);
+
+        sleep(1);
+    }
 }

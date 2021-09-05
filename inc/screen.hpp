@@ -16,6 +16,8 @@
 
 using namespace std;
 
+extern bool abort_deamon;
+
 extern float potentiometer_temperature;
 extern float internal_temperature;
 extern float external_temperature;
@@ -63,6 +65,7 @@ public:
     ~Screen();
 
     void menu_deamon();
+    void data_update_deamon();
 };
 
 #endif
