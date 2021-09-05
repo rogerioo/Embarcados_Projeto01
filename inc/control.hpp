@@ -11,12 +11,20 @@
 #define CONTROL_ON_OFF 0
 #define CONTROL_PID 1
 
+extern bool abort_deamon;
+
 extern float potentiometer_temperature;
 extern float internal_temperature;
 extern float external_temperature;
-extern float user_temperature;
 extern int hysteresis;
 extern int key_state;
+
+extern float user_temperature;
+extern int user_hysteresis;
+extern int user_key_state;
+extern int user_pid_kp;
+extern int user_pid_ki;
+extern int user_pid_kd;
 
 extern bool RESISTOR_status;
 extern bool BME280_status;

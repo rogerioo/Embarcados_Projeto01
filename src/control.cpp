@@ -127,8 +127,10 @@ int Control::set_on_off_signal(float reference_temperature)
 {
     int control_signal = this->last_on_off;
 
-    float bottom = reference_temperature - hysteresis / 2.0;
-    float top = reference_temperature + hysteresis / 2.0;
+    auto current_hysteresis = user_hysteresis == -1 ? hysteresis : user_hysteresis;
+
+    float bottom = reference_temperature - current_hysteresis / 2.0;
+    float top = reference_temperature + current_hysteresis / 2.0;
 
     if (internal_temperature >= top)
         control_signal = -100, this->fan->send(100);
@@ -142,7 +144,7 @@ int Control::set_on_off_signal(float reference_temperature)
 
 void Control::go()
 {
-    while (1)
+    while (not abort_deamon)
     {
         this->set_potentiometer_temperature();
         this->set_internal_temperature();
@@ -150,12 +152,13 @@ void Control::go()
         this->set_key_state();
 
         float reference_temperature = user_temperature == -100 ? potentiometer_temperature : user_temperature;
+        auto current_key_state = user_key_state == -1 ? key_state : user_key_state;
 
         int control_signal;
 
-        if (key_state == CONTROL_ON_OFF)
+        if (current_key_state == CONTROL_ON_OFF)
             control_signal = this->set_on_off_signal(reference_temperature);
-        else if (key_state == CONTROL_PID)
+        else if (current_key_state == CONTROL_PID)
         {
             control_signal = this->set_pid_control_signal(reference_temperature);
             this->last_on_off = 0;
@@ -165,10 +168,6 @@ void Control::go()
 
         this->csv->write_line(internal_temperature, external_temperature, reference_temperature, control_signal);
 
-        cout << "TI: " << internal_temperature << endl;
-        cout << "TR: " << reference_temperature << endl;
-        cout << "CS: " << control_signal << endl;
-
-        sleep(10);
+        sleep(1);
     }
 }

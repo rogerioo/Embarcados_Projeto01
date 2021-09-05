@@ -38,15 +38,19 @@ Screen *screen = new Screen();
 thread *screen_update_thread;
 thread *screen_menu_thread;
 
+thread *control_thread;
+
 void quit(int signal)
 {
     abort_deamon = true;
 
     screen_update_thread->join();
     screen_menu_thread->join();
+    control_thread->join();
 
     delete screen_update_thread;
     delete screen_menu_thread;
+    delete control_thread;
 
     delete screen;
 
@@ -62,6 +66,8 @@ int main(int argc, char *argv[])
 
     screen_update_thread = new thread(&Screen::data_update_deamon, screen);
     screen_menu_thread = new thread(&Screen::menu_deamon, screen);
+
+    control_thread = new thread(&Control::go, control);
 
     // screen->data_update_deamon();
 
