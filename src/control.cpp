@@ -47,8 +47,18 @@ void Control::set_potentiometer_temperature()
     request.sub_code = READ_TR;
     request.code = READ;
 
-    this->uart->send_message(&request);
-    this->uart->read_message(&response);
+    try
+    {
+        uart->send_message(&request);
+        uart->read_message(&response);
+    }
+    catch (const char *error)
+    {
+        UART_status = false;
+        throw error;
+    }
+
+    UART_status = true;
 
     potentiometer_temperature = (*((float *)response.data));
 
@@ -62,8 +72,18 @@ void Control::set_internal_temperature()
     request.code = READ;
     request.sub_code = READ_TI;
 
-    this->uart->send_message(&request);
-    this->uart->read_message(&response);
+    try
+    {
+        uart->send_message(&request);
+        uart->read_message(&response);
+    }
+    catch (const char *error)
+    {
+        UART_status = false;
+        throw error;
+    }
+
+    UART_status = true;
 
     internal_temperature = (*((float *)response.data));
 
@@ -84,8 +104,18 @@ void Control::set_key_state()
     request.code = READ;
     request.sub_code = READ_STATE;
 
-    uart->send_message(&request);
-    uart->read_message(&response);
+    try
+    {
+        uart->send_message(&request);
+        uart->read_message(&response);
+    }
+    catch (const char *error)
+    {
+        UART_status = false;
+        throw error;
+    }
+
+    UART_status = true;
 
     key_state = (*((int *)response.data));
 
@@ -103,7 +133,17 @@ void Control::send_control_signal(int control_signal)
 
     *((int *)request.data) = control_signal;
 
-    uart->send_message(&request);
+    try
+    {
+        uart->send_message(&request);
+    }
+    catch (char const *error)
+    {
+        UART_status = false;
+        throw error;
+    }
+
+    UART_status = true;
 
     free(request.data);
 }

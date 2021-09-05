@@ -96,13 +96,16 @@ void UART::send_message(data_interface const *data)
 
     crc = calcula_CRC(package, len - 2);
 
-    memcpy((void *)(package + (len - 2)), (void *)&crc, 1);
+    memcpy((void *)(package + (len - 2)), (void *)&crc, 2);
 
-    crc = calcula_CRC(package, len - 1);
-
-    memcpy((void *)(package + (len - 1)), (void *)&crc, 1);
-
-    write_uart((void *)package, len);
+    try
+    {
+        write_uart((void *)package, len);
+    }
+    catch (const char *error)
+    {
+        throw error;
+    }
 
     sleep(1);
 
@@ -115,11 +118,18 @@ void UART::read_message(data_interface *data)
 {
     int data_bytes = 0;
 
-    read_uart((void *)&data->address, sizeof(char));
+    try
+    {
+        read_uart((void *)&data->address, sizeof(char));
 
-    read_uart((void *)&data->code, sizeof(char));
+        read_uart((void *)&data->code, sizeof(char));
 
-    read_uart((void *)&data->sub_code, sizeof(char));
+        read_uart((void *)&data->sub_code, sizeof(char));
+    }
+    catch (const char *error)
+    {
+        throw error;
+    }
 
     switch (data->sub_code)
     {
@@ -138,11 +148,22 @@ void UART::read_message(data_interface *data)
         throw "Wrong option code";
         break;
     }
+    try
+    {
+        read_uart(data->data, data_bytes);
 
-    read_uart(data->data, data_bytes);
+        read_uart((void *)&data->crc, 2);
+    }
+    catch (const char *error)
+    {
+        throw error;
+    }
 
-    read_uart((void *)&data->crc1, 1);
-    read_uart((void *)&data->crc2, 1);
+    unsigned char package[9] = {data->address, data->code, data->sub_code};
+    memcpy((void *)(package + 3), data->data, data_bytes);
+
+    if (calcula_CRC(package, 7) != (unsigned short)data->crc)
+        throw "Error reading from UART: CRC doesn't match";
 
     return;
 }

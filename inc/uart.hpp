@@ -20,7 +20,7 @@ struct data_interface
 {
     char code, sub_code;
     char address;
-    char crc1, crc2;
+    short crc;
     void *data;
 } typedef data_interface;
 
