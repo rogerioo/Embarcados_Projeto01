@@ -19,6 +19,13 @@ void PID::set_reference(float reference)
     this->reference = (double)reference;
 }
 
+void PID::set_parameters(double Kp_, double Ki_, double Kd_)
+{
+    this->Kp = Kp_;
+    this->Ki = Ki_;
+    this->Kd = Kd_;
+}
+
 double PID::get_pid(double internal_temperature)
 {
 

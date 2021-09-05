@@ -16,7 +16,9 @@ public:
     PID(double Kp_, double Ki_, double Kd_);
     ~PID();
 
+    void set_parameters(double Kp_, double Ki_, double Kd_);
     void set_reference(float reference);
+
     double get_pid(double input);
 };
 
