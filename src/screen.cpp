@@ -7,6 +7,7 @@ Screen::Screen() : box_external_temperature(nullptr),
                    box_reference_temperature(nullptr),
                    box_control_mode(nullptr),
                    box_menu(nullptr),
+                   box_input(nullptr),
                    box_status(nullptr),
                    menu_controller(nullptr),
                    menu_items(nullptr),
@@ -33,6 +34,7 @@ Screen::Screen() : box_external_temperature(nullptr),
 
     set_header();
     set_menu();
+    set_input_box();
     set_status();
 
     wrefresh(box_external_temperature);
@@ -41,6 +43,7 @@ Screen::Screen() : box_external_temperature(nullptr),
     wrefresh(box_control_mode);
 
     wrefresh(box_menu);
+    wrefresh(box_input);
     wrefresh(box_status);
 }
 
@@ -61,10 +64,10 @@ Screen::~Screen()
 
 void Screen::set_header()
 {
-    string title_it{"INTERNAL TEMPERATURE"};
-    string title_et{"EXTERNAL TEMPERATURE"};
-    string title_rt{"REFERENCE TEMPERATURE"};
-    string title_cm{"CONTROL MODE"};
+    string title_it{" INTERNAL TEMPERATURE "};
+    string title_et{" EXTERNAL TEMPERATURE "};
+    string title_rt{" REFERENCE TEMPERATURE "};
+    string title_cm{" CONTROL MODE "};
 
     box_external_temperature = newwin(5, (max_width / 4) - 1, 0, 0);
     box_internal_temperature = newwin(5, (max_width / 4) - 1, 0, max_width / 4);
@@ -84,7 +87,7 @@ void Screen::set_header()
 
 void Screen::set_status()
 {
-    string title{"DEVICES STATUS"};
+    string title{" DEVICES STATUS "};
 
     box_status = newwin(max_height - 6, (max_width / 4) - 1, 6, 3 * max_width / 4);
 
@@ -93,10 +96,21 @@ void Screen::set_status()
     mvwprintw(box_status, 0, (max_width / 8) - title.size() / 2, title.c_str());
 }
 
+void Screen::set_input_box()
+{
+    string title{" INPUT "};
+
+    box_input = newwin(max_height - 6, (max_width / 4) - 2, 6, max_width / 2);
+
+    box(box_input, 0, 0);
+
+    mvwprintw(box_input, 0, (max_width / 8) - title.size() / 2, title.c_str());
+}
+
 void Screen::set_menu()
 {
     string right_padding((max_width / 2) - 4, ' ');
-    string title{"MENU"};
+    string title{" MENU "};
 
     for (size_t i = 0; i < menu_options.size() - 1; i++)
         menu_options[i].append(right_padding);
@@ -165,13 +179,13 @@ void Screen::menu_deamon()
                                1);
                 break;
             case '2':
-                set_input_mode({"Enter the Temperature: "}, 2);
+                set_input_mode({"Enter the Temperature"}, 2);
                 break;
             case '3':
-                set_input_mode({"Enter the Hysterese: "}, 3);
+                set_input_mode({"Enter the Hysterese"}, 3);
                 break;
             case '4':
-                set_input_mode({"Enter the PID parameters "}, 4);
+                set_input_mode({"Enter the PID parameters"}, 4);
                 break;
 
             case '5':
@@ -190,19 +204,24 @@ void Screen::set_input_mode(vector<string> message, int option)
     int window_height, window_width;
     int back_to_auto;
 
-    getmaxyx(box_menu, window_height, window_width);
-
-    int begin_y = window_height - 1 - message.size() - 2;
+    getmaxyx(box_input, window_height, window_width);
 
     echo();
 
-    mvwprintw(box_menu, begin_y + message.size() + 1, 3, "Want to set it auto? (1 Yes / 2 No): ");
-    wrefresh(box_menu);
+    mvwprintw(box_input, 2, 3, "Want to set it automatically?");
+    mvwprintw(box_input, 5, 3, "(1) Yes");
+    mvwprintw(box_input, 7, 3, "(2) No");
+    wrefresh(box_input);
 
-    wscanw(box_menu, "%d", &back_to_auto);
+    wmove(box_input, 10, 3);
 
-    mvwprintw(box_menu, begin_y + message.size() + 1, 3, "                                      ");
-    wrefresh(box_menu);
+    wscanw(box_input, "%d", &back_to_auto);
+
+    mvwprintw(box_input, 2, 3, "                                      ");
+    mvwprintw(box_input, 5, 3, "                                      ");
+    mvwprintw(box_input, 7, 3, "                                      ");
+    mvwprintw(box_input, 10, 3, "                                      ");
+    wrefresh(box_input);
 
     if (back_to_auto == 1)
     {
@@ -212,10 +231,10 @@ void Screen::set_input_mode(vector<string> message, int option)
             user_key_state = -1;
             break;
         case 2:
-            user_key_state = -100;
+            user_temperature = -100;
             break;
         case 3:
-            user_key_state = -1;
+            user_hysteresis = -1;
             break;
         case 4:
             user_pid_ki = -1;
@@ -236,38 +255,49 @@ void Screen::set_input_mode(vector<string> message, int option)
     {
         if (message[i] == "")
             continue;
-        mvwprintw(box_menu, begin_y + i, 3, message[i].c_str());
+        mvwprintw(box_input, 2 + i, 3, message[i].c_str());
     }
 
-    wrefresh(box_menu);
+    wrefresh(box_input);
+
+    wmove(box_input, message.size() + 3, 3);
 
     switch (option)
     {
     case 1:
-        wscanw(box_menu, "%d", &user_key_state);
+        wscanw(box_input, "%d", &user_key_state);
         break;
     case 2:
-        wscanw(box_menu, "%f", &user_temperature);
+        wscanw(box_input, "%f", &user_temperature);
         break;
     case 3:
-        wscanw(box_menu, "%d", &user_hysteresis);
+        wscanw(box_input, "%d", &user_hysteresis);
         break;
     case 4:
-        mvwprintw(box_menu, begin_y + message.size() + 1, 3, "Enter the KP: ");
-        wrefresh(box_menu);
-        wscanw(box_menu, "%d", &user_pid_kp);
+        mvwprintw(box_input, 4, 3, "Enter the KP");
+        wrefresh(box_input);
+        wmove(box_input, 6, 3);
+        wscanw(box_input, "%d", &user_pid_kp);
 
-        mvwprintw(box_menu, begin_y + message.size() + 1, 3, "               ");
-        wrefresh(box_menu);
-        mvwprintw(box_menu, begin_y + message.size() + 1, 3, "Enter the KI: ");
-        wrefresh(box_menu);
-        wscanw(box_menu, "%d", &user_pid_kp);
+        mvwprintw(box_input, 4, 3, "               ");
+        mvwprintw(box_input, 6, 3, "               ");
+        wrefresh(box_input);
+        mvwprintw(box_input, 4, 3, "Enter the KI");
+        wrefresh(box_input);
+        wmove(box_input, 6, 3);
+        wscanw(box_input, "%d", &user_pid_ki);
 
-        mvwprintw(box_menu, begin_y + message.size() + 1, 3, "               ");
-        wrefresh(box_menu);
-        mvwprintw(box_menu, begin_y + message.size() + 1, 3, "Enter the KD: ");
-        wrefresh(box_menu);
-        wscanw(box_menu, "%d", &user_pid_kp);
+        mvwprintw(box_input, 4, 3, "               ");
+        mvwprintw(box_input, 6, 3, "               ");
+        wrefresh(box_input);
+        mvwprintw(box_input, 4, 3, "Enter the KD");
+        wrefresh(box_input);
+        wmove(box_input, 6, 3);
+        wscanw(box_input, "%d", &user_pid_kd);
+
+        mvwprintw(box_input, 4, 3, "               ");
+        mvwprintw(box_input, 6, 3, "               ");
+        wrefresh(box_input);
 
         break;
     default:
@@ -280,10 +310,12 @@ void Screen::set_input_mode(vector<string> message, int option)
 
     for (size_t i = 0; i < message.size() + 2; i++)
     {
-        mvwprintw(box_menu, begin_y + i, 1, clear_string.c_str());
+        mvwprintw(box_input, 1 + i, 1, clear_string.c_str());
     }
 
-    wrefresh(box_menu);
+    mvwprintw(box_input, message.size() + 3, 3, "         ");
+
+    wrefresh(box_input);
 }
 
 void Screen::data_update_deamon()
@@ -292,13 +324,11 @@ void Screen::data_update_deamon()
     int box_reference_height, box_reference_width;
     int box_external_height, box_external_width;
     int box_internal_height, box_internal_width;
-    int box_status_height, box_status_width;
 
     getmaxyx(box_reference_temperature, box_reference_height, box_reference_width);
     getmaxyx(box_control_mode, box_control_mode_height, box_control_mode_width);
     getmaxyx(box_external_temperature, box_external_height, box_external_width);
     getmaxyx(box_internal_temperature, box_internal_height, box_internal_width);
-    getmaxyx(box_status, box_status_height, box_status_width);
 
     while (not abort_deamon)
     {
@@ -314,16 +344,15 @@ void Screen::data_update_deamon()
                                  ->first.length() +
                              3;
 
-        int line_position = -(system_devices.size() / 2) - (max_height % 2 != 0);
-        // int line_position = 1;
+        int line_position = 2;
         for (const auto item : system_devices)
         {
             auto status_justify = right_padding - item.first.length();
 
             string status_message{item.second ? "ACTIVE" : "ERROR"};
 
-            mvwprintw(box_status, (box_status_height / 2) + line_position, 3, item.first.c_str());
-            mvwprintw(box_status, (box_status_height / 2) + line_position++, 3 + item.first.length() + status_justify, status_message.c_str());
+            mvwprintw(box_status, line_position, 3, item.first.c_str());
+            mvwprintw(box_status, line_position++, 3 + item.first.length() + status_justify, status_message.c_str());
         }
 
         wrefresh(box_external_temperature);

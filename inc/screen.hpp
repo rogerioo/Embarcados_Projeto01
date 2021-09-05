@@ -45,6 +45,7 @@ private:
     WINDOW *box_reference_temperature;
     WINDOW *box_control_mode;
     WINDOW *box_menu;
+    WINDOW *box_input;
     WINDOW *box_status;
 
     MENU *menu_controller;
@@ -58,6 +59,7 @@ private:
     void set_menu();
     void set_header();
     void set_status();
+    void set_input_box();
 
     void set_input_mode(vector<string> message, int option);
 
