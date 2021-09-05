@@ -37,6 +37,9 @@ CSV::CSV()
              << "_.csv";
 
     this->file.open(filename.str(), ios::out | ios::app);
+
+    if (not filename)
+        throw "Could not open CSV file.";
 }
 
 CSV::~CSV()

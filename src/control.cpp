@@ -10,17 +10,23 @@ using namespace std;
 
 Control::Control()
 {
-    this->uart = new UART("/dev/serial0", O_RDWR | O_NOCTTY | O_NDELAY, 0x01);
+    try
+    {
+        this->uart = new UART("/dev/serial0", O_RDWR | O_NOCTTY | O_NDELAY, 0x01);
 
-    this->sensor = new BME280(1, 0x76);
+        this->sensor = new BME280(1, 0x76);
 
-    this->resistor = new PWM(RESISTOR);
-    this->fan = new PWM(FAN);
+        this->resistor = new PWM(RESISTOR);
+        this->fan = new PWM(FAN);
+
+        this->csv = new CSV();
+    }
+    catch (const char *error)
+    {
+        throw error;
+    }
 
     this->pid = new PID(5.0, 1.0, 5.0);
-
-    this->csv = new CSV();
-
     this->last_on_off = 0;
 }
 

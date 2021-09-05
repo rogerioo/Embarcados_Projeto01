@@ -2,11 +2,19 @@
 
 PWM::PWM(int pin)
 {
+    int res;
+
     this->pin = pin;
 
-    wiringPiSetup();
+    res = wiringPiSetup();
+    if (res != 0)
+        throw "Couldn't setup pin mode.";
+
     pinMode(this->pin, OUTPUT);
-    softPwmCreate(this->pin, 0, 100);
+
+    res = softPwmCreate(this->pin, 0, 100);
+    if (res == -1)
+        throw "Couldn't open PWM pin.";
 }
 
 PWM::~PWM()

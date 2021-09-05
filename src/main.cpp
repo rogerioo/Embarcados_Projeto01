@@ -32,8 +32,8 @@ bool UART_status = true;
 bool LCD_display = true;
 bool FAN_status = true;
 
-Control *control = new Control();
-Screen *screen = new Screen();
+Control *control;
+Screen *screen;
 
 thread *screen_update_thread;
 thread *screen_menu_thread;
@@ -63,6 +63,17 @@ int main(int argc, char *argv[])
 {
 
     signal(SIGINT, quit);
+
+    try
+    {
+        control = new Control();
+        screen = new Screen();
+    }
+    catch (const char *error)
+    {
+        cout << error << endl;
+        return -1;
+    }
 
     screen_update_thread = new thread(&Screen::data_update_deamon, screen);
     screen_menu_thread = new thread(&Screen::menu_deamon, screen);
