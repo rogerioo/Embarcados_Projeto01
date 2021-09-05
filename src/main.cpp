@@ -24,7 +24,7 @@ float potentiometer_temperature = 0;
 float internal_temperature = 0;
 float external_temperature = 0;
 int hysteresis = 3;
-int key_state = -1;
+int key_state = 0;
 
 bool RESISTOR_status = true;
 bool BME280_status = true;

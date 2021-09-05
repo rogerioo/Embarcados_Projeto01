@@ -86,27 +86,11 @@ void Screen::set_status()
 {
     string title{"DEVICES STATUS"};
 
-    box_status = newwin(max_height - 6, max_width / 2 - 1, 6, max_width / 2);
+    box_status = newwin(max_height - 6, (max_width / 4) - 1, 6, 3 * max_width / 4);
 
     box(box_status, 0, 0);
 
-    mvwprintw(box_status, 0, (max_width / 2) / 2 - title.size() / 2, title.c_str());
-
-    auto right_padding = max_element(system_devices.begin(),
-                                     system_devices.end(),
-                                     [](const auto &lhs, const auto &rhs)
-                                     { return lhs.first.length() < rhs.first.length(); })
-                             ->first.length() +
-                         3;
-
-    int line_position = -(system_devices.size() / 2) - (max_height % 2 != 0);
-    for (const auto item : system_devices)
-    {
-        mvwprintw(box_status, (max_height - 6) / 2 + line_position, 3, item.first.c_str());
-        mvwprintw(box_status, (max_height - 6) / 2 + line_position++,
-                  3 + item.first.length() + (right_padding - item.first.length()),
-                  item.second ? "ACTIVE" : "ERROR");
-    }
+    mvwprintw(box_status, 0, (max_width / 8) - title.size() / 2, title.c_str());
 }
 
 void Screen::set_menu()
@@ -308,23 +292,45 @@ void Screen::data_update_deamon()
     int box_reference_height, box_reference_width;
     int box_external_height, box_external_width;
     int box_internal_height, box_internal_width;
+    int box_status_height, box_status_width;
 
     getmaxyx(box_reference_temperature, box_reference_height, box_reference_width);
     getmaxyx(box_control_mode, box_control_mode_height, box_control_mode_width);
     getmaxyx(box_external_temperature, box_external_height, box_external_width);
     getmaxyx(box_internal_temperature, box_internal_height, box_internal_width);
+    getmaxyx(box_status, box_status_height, box_status_width);
 
     while (not abort_deamon)
     {
-        mvwprintw(box_external_temperature, 2, box_external_width / 2, "%.2f", external_temperature);
-        mvwprintw(box_internal_temperature, 2, box_internal_width / 2, "%.2f", internal_temperature);
-        mvwprintw(box_reference_temperature, 2, box_reference_width / 2, "%.2f", user_temperature == -100 ? potentiometer_temperature : user_temperature);
+        mvwprintw(box_external_temperature, 2, (box_external_width / 2) - 2, "%.2f", external_temperature);
+        mvwprintw(box_internal_temperature, 2, (box_internal_width / 2) - 2, "%.2f", internal_temperature);
+        mvwprintw(box_reference_temperature, 2, (box_reference_width / 2) - 2, "%.2f", user_temperature == -100 ? potentiometer_temperature : user_temperature);
         mvwprintw(box_control_mode, 2, box_control_mode_width / 2, "%d", user_key_state == -1 ? key_state : user_key_state);
+
+        auto right_padding = max_element(system_devices.begin(),
+                                         system_devices.end(),
+                                         [](const auto &lhs, const auto &rhs)
+                                         { return lhs.first.length() < rhs.first.length(); })
+                                 ->first.length() +
+                             3;
+
+        int line_position = -(system_devices.size() / 2) - (max_height % 2 != 0);
+        // int line_position = 1;
+        for (const auto item : system_devices)
+        {
+            auto status_justify = right_padding - item.first.length();
+
+            string status_message{item.second ? "ACTIVE" : "ERROR"};
+
+            mvwprintw(box_status, (box_status_height / 2) + line_position, 3, item.first.c_str());
+            mvwprintw(box_status, (box_status_height / 2) + line_position++, 3 + item.first.length() + status_justify, status_message.c_str());
+        }
 
         wrefresh(box_external_temperature);
         wrefresh(box_internal_temperature);
         wrefresh(box_reference_temperature);
         wrefresh(box_control_mode);
+        wrefresh(box_status);
 
         sleep(1);
     }
