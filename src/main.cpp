@@ -4,11 +4,14 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <thread>
 
 #include "control.hpp"
 #include "screen.hpp"
 
 using namespace std;
+
+bool abort_deamon = false;
 
 float user_temperature = -100;
 int user_hysteresis = -1;
@@ -32,8 +35,19 @@ bool FAN_status = true;
 Control *control = new Control();
 Screen *screen = new Screen();
 
+thread *screen_update_thread;
+thread *screen_menu_thread;
+
 void quit(int signal)
 {
+    abort_deamon = true;
+
+    screen_update_thread->join();
+    screen_menu_thread->join();
+
+    delete screen_update_thread;
+    delete screen_menu_thread;
+
     delete screen;
 
     delete control;
@@ -46,11 +60,16 @@ int main(int argc, char *argv[])
 
     signal(SIGINT, quit);
 
-    screen->menu_deamon();
+    screen_update_thread = new thread(&Screen::data_update_deamon, screen);
+    screen_menu_thread = new thread(&Screen::menu_deamon, screen);
+
+    // screen->data_update_deamon();
 
     // Screen screen;
 
-    // sleep(10);
+    while (1)
+    {
+    }
 
     // Display *display = new Display();
     // display_message data;
