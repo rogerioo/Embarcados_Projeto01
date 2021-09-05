@@ -53,11 +53,12 @@ Screen::~Screen()
     delwin(box_internal_temperature);
     delwin(box_reference_temperature);
     delwin(box_control_mode);
-    delwin(box_menu);
+    delwin(box_input);
     delwin(box_status);
 
     unpost_menu(menu_controller);
     free_menu(menu_controller);
+    delwin(box_menu);
 
     endwin();
 }
