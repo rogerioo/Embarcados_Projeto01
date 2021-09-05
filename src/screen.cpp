@@ -1,8 +1,5 @@
 #include "screen.hpp"
 
-#include <string.h>
-#include <iostream>
-
 using namespace std;
 
 Screen::Screen() : box_external_temperature(nullptr),
