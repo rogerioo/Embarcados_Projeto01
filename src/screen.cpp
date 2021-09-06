@@ -190,6 +190,10 @@ void Screen::menu_deamon()
                 break;
 
             case '5':
+                mvwprintw(box_input, 2, 3, "System shutting down...");
+                mvwprintw(box_input, 4, 3, "Please wait!!");
+                wrefresh(box_input);
+
                 kill(getpid(), SIGINT);
                 break;
             }
