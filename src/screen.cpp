@@ -19,11 +19,11 @@ Screen::Screen() : box_external_temperature(nullptr),
                                  "5. Shutdown System",
                                  ""}),
                    system_devices({
-                       {"RESISTOR", RESISTOR_status},
-                       {"BME280", BME280_status},
-                       {"UART", UART_status},
-                       {"DISPLAY", LCD_display},
-                       {"FAN", FAN_status},
+                       {"RESISTOR", &RESISTOR_status},
+                       {"BME280", &BME280_status},
+                       {"UART", &UART_status},
+                       {"DISPLAY", &LCD_display},
+                       {"FAN", &FAN_status},
                    })
 {
     initscr();
@@ -350,7 +350,7 @@ void Screen::data_update_deamon()
         {
             auto status_justify = right_padding - item.first.length();
 
-            string status_message{item.second ? "ACTIVE" : "ERROR"};
+            string status_message{*(item.second) ? "ACTIVE" : "ERROR "};
 
             mvwprintw(box_status, line_position, 3, item.first.c_str());
             mvwprintw(box_status, line_position++, 3 + item.first.length() + status_justify, status_message.c_str());

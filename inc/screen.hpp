@@ -52,7 +52,7 @@ private:
     ITEM **menu_items;
 
     vector<string> menu_options;
-    vector<pair<string, bool>> system_devices;
+    vector<pair<string, bool *>> system_devices;
 
     int max_height, max_width;
 

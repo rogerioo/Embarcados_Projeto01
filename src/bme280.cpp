@@ -206,7 +206,10 @@ sensor_data *BME280::get_data()
 
     usleep(10000);
 
-    this->bme280ReadValues(&T, &P, &H);
+    auto res = this->bme280ReadValues(&T, &P, &H);
+
+    if (res != 0)
+        throw "Couldn't read fron BME280";
 
     T -= 150;
 

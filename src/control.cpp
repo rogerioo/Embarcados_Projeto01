@@ -92,7 +92,19 @@ void Control::set_internal_temperature()
 
 void Control::set_external_temperature()
 {
-    sensor_data *sensor_out = this->sensor->get_data();
+    sensor_data *sensor_out;
+
+    try
+    {
+        sensor_out = this->sensor->get_data();
+    }
+    catch (const char *error)
+    {
+        BME280_status = false;
+        throw error;
+    }
+
+    BME280_status = true;
 
     external_temperature = sensor_out->temperature;
 }
@@ -192,10 +204,17 @@ void Control::go()
 {
     while (not abort_deamon)
     {
-        this->set_potentiometer_temperature();
-        this->set_internal_temperature();
-        this->set_external_temperature();
-        this->set_key_state();
+        try
+        {
+            this->set_potentiometer_temperature();
+            this->set_internal_temperature();
+            this->set_external_temperature();
+            this->set_key_state();
+        }
+        catch (const char *error)
+        {
+            sleep(2);
+        }
 
         float reference_temperature = user_temperature == -100 ? potentiometer_temperature : user_temperature;
         auto current_key_state = user_key_state == -1 ? key_state : user_key_state;
@@ -211,7 +230,6 @@ void Control::go()
         }
 
         this->send_control_signal(control_signal);
-
         this->csv->write_line(internal_temperature, external_temperature, reference_temperature, control_signal);
 
         sleep(1);
