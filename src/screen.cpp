@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
 #include "screen.hpp"
 
 using namespace std;
