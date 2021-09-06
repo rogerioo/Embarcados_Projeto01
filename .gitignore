@@ -38,3 +38,4 @@ obj/*
 
 logs/*.csv
 !logs/control_log_2021-09-05_23-40-05.csv
+!logs/control_log_2021-09-06_00-08-00.csv
