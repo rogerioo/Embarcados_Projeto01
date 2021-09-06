@@ -381,10 +381,13 @@ void Screen::data_update_deamon()
 
     while (not abort_deamon)
     {
+        auto current_key_state = user_key_state == -1 ? key_state : user_key_state;
+        string key_state_message{current_key_state == 0 ? "ON / OFF" : "  PID   "};
+
         mvwprintw(box_external_temperature, 2, (box_external_width / 2) - 2, "%.2f", external_temperature);
         mvwprintw(box_internal_temperature, 2, (box_internal_width / 2) - 2, "%.2f", internal_temperature);
         mvwprintw(box_reference_temperature, 2, (box_reference_width / 2) - 2, "%.2f", user_temperature == -100 ? potentiometer_temperature : user_temperature);
-        mvwprintw(box_control_mode, 2, box_control_mode_width / 2, "%d", user_key_state == -1 ? key_state : user_key_state);
+        mvwprintw(box_control_mode, 2, (box_control_mode_width / 2) - 4, key_state_message.c_str());
 
         auto right_padding = max_element(system_devices.begin(),
                                          system_devices.end(),
