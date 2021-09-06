@@ -35,4 +35,6 @@
 bin/*
 obj/*
 .vscode/
+
 logs/*.csv
+!logs/control_log_2021-09-05_23-40-05.csv
