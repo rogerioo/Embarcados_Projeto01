@@ -19,6 +19,22 @@
 #define INT_MSG 2
 #define FLOAT_MSG 3
 
+#include <wiringPiI2C.h>
+#include <wiringPi.h>
+#include <unistd.h>
+
+#include <string>
+
+extern float potentiometer_temperature;
+extern float internal_temperature;
+extern float external_temperature;
+extern int key_state;
+
+extern float user_temperature;
+extern int user_key_state;
+
+extern bool abort_deamon;
+
 struct display_message
 {
     const void *data;
@@ -39,10 +55,6 @@ private:
     void typeln(const char *s);
     void typeChar(char val);
 
-public:
-    Display();
-    ~Display();
-
     /*!
     *  @brief Writes on the LCD display
     *
@@ -57,6 +69,12 @@ public:
     *  @brief Clean the display
     */
     void clear_lcd();
+
+public:
+    Display();
+    ~Display();
+
+    void update_display_deamon();
 };
 
 #endif

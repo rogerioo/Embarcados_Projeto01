@@ -1,9 +1,6 @@
-#include <wiringPi.h>
-#include <wiringPiI2C.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "display.hpp"
+
+using namespace std;
 
 Display::Display()
 {
@@ -24,6 +21,7 @@ Display::Display()
 
 Display::~Display()
 {
+  clear_lcd();
 }
 
 void Display::write_lcd(int line, int type, display_message *data)
@@ -48,6 +46,36 @@ void Display::write_lcd(int line, int type, display_message *data)
   default:
     throw "Wrong option";
     break;
+  }
+}
+
+void Display::update_display_deamon()
+{
+  display_message data;
+
+  while (not abort_deamon)
+  {
+    auto reference_temperature = user_temperature == -100 ? potentiometer_temperature : user_temperature;
+
+    auto current_key_state = user_key_state == -1 ? key_state : user_key_state;
+    string key_state_message{current_key_state == 0 ? " ON/OFF" : " PID   "};
+
+    data.message = "TE:";
+    data.data = (const void *)&external_temperature;
+    write_lcd(LINE1, FLOAT_MSG, &data);
+
+    data.message = " TI:";
+    data.data = (const void *)&internal_temperature;
+    write_lcd(0, FLOAT_MSG, &data);
+
+    data.message = "TR:";
+    data.data = (const void *)&reference_temperature;
+    write_lcd(LINE2, FLOAT_MSG, &data);
+
+    data.message = key_state_message.c_str();
+    write_lcd(0, CHAR_MSG, &data);
+
+    sleep(1);
   }
 }
 

@@ -1,12 +1,10 @@
 #include <iostream>
-
-#include <signal.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <thread>
 
+#include <signal.h>
+
 #include "control.hpp"
+#include "display.hpp"
 #include "screen.hpp"
 
 using namespace std;
@@ -33,6 +31,7 @@ bool LCD_display = true;
 bool FAN_status = true;
 
 Control *control;
+Display *display;
 Screen *screen;
 
 thread *screen_update_thread;
@@ -40,21 +39,31 @@ thread *screen_menu_thread;
 
 thread *control_thread;
 
+thread *display_thread;
+
 void quit(int signal)
 {
     abort_deamon = true;
 
+    control_thread->join();
+
     screen_update_thread->join();
     screen_menu_thread->join();
-    control_thread->join();
+
+    display_thread->join();
+
+    delete control_thread;
 
     delete screen_update_thread;
     delete screen_menu_thread;
-    delete control_thread;
+
+    delete display_thread;
 
     delete screen;
 
     delete control;
+
+    delete display;
 
     exit(0);
 }
@@ -68,6 +77,7 @@ int main(int argc, char *argv[])
     {
         control = new Control();
         screen = new Screen();
+        display = new Display();
     }
     catch (const char *error)
     {
@@ -80,32 +90,11 @@ int main(int argc, char *argv[])
 
     control_thread = new thread(&Control::go, control);
 
-    // screen->data_update_deamon();
-
-    // Screen screen;
+    display_thread = new thread(&Display::update_display_deamon, display);
 
     while (1)
     {
     }
-
-    // Display *display = new Display();
-    // display_message data;
-
-    // data.message = "T: ";
-    // data.data = (const void *)&sensor_out->temperature;
-    // display->write_lcd(LINE1, FLOAT_MSG, &data);
-
-    // data.message = " P: ";
-    // data.data = (const void *)&sensor_out->pressure;
-    // display->write_lcd(0, FLOAT_MSG, &data);
-
-    // data.message = "H:  ";
-    // data.data = (const void *)&sensor_out->humidity;
-    // display->write_lcd(LINE2, FLOAT_MSG, &data);
-    // data.message = "%";
-    // display->write_lcd(0, CHAR_MSG, &data);
-
-    // control->go();
 
     return 0;
 }
