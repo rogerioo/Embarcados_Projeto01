@@ -279,7 +279,7 @@ void Screen::set_input_mode(vector<string> message, int option)
             break;
         }
 
-        key_state = tmp_int;
+        user_key_state = tmp_int;
 
         break;
     case 2:

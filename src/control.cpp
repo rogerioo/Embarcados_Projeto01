@@ -162,6 +162,11 @@ void Control::send_control_signal(int control_signal)
 
 int Control::set_pid_control_signal(float reference_temperature)
 {
+    if (user_pid_kd != -1)
+        this->pid->set_parameters(user_pid_kp, user_pid_ki, user_pid_kd);
+    else
+        this->pid->set_parameters(5, 1, 5);
+
     this->pid->set_reference(reference_temperature);
 
     int control_signal = (int)this->pid->get_pid(internal_temperature);
