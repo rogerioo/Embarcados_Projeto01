@@ -205,23 +205,25 @@ void Screen::set_input_mode(vector<string> message, int option)
     int window_height, window_width;
     int back_to_auto;
 
+    int start_y = 2;
+
     getmaxyx(box_input, window_height, window_width);
 
     echo();
 
-    mvwprintw(box_input, 2, 3, "Want to set it automatically?");
-    mvwprintw(box_input, 5, 3, "(1) Yes");
-    mvwprintw(box_input, 7, 3, "(2) No");
+    mvwprintw(box_input, start_y, 3, "Want to set it automatically?");
+    mvwprintw(box_input, start_y + 2, 3, "(1) Yes");
+    mvwprintw(box_input, start_y + 4, 3, "(2) No");
     wrefresh(box_input);
 
-    wmove(box_input, 10, 3);
+    wmove(box_input, start_y + 6, 3);
 
     wscanw(box_input, "%d", &back_to_auto);
 
-    mvwprintw(box_input, 2, 3, "                                      ");
-    mvwprintw(box_input, 5, 3, "                                      ");
-    mvwprintw(box_input, 7, 3, "                                      ");
-    mvwprintw(box_input, 10, 3, "                                      ");
+    mvwprintw(box_input, start_y, 3, "                                      ");
+    mvwprintw(box_input, start_y + 2, 3, "                                      ");
+    mvwprintw(box_input, start_y + 4, 3, "                                      ");
+    mvwprintw(box_input, start_y + 6, 3, "                                      ");
     wrefresh(box_input);
 
     if (back_to_auto == 1)
@@ -256,48 +258,77 @@ void Screen::set_input_mode(vector<string> message, int option)
     {
         if (message[i] == "")
             continue;
-        mvwprintw(box_input, 2 + i, 3, message[i].c_str());
+        mvwprintw(box_input, start_y + i, 3, message[i].c_str());
     }
 
     wrefresh(box_input);
 
     wmove(box_input, message.size() + 3, 3);
 
+    int tmp_int;
+    float tmp_float;
+
     switch (option)
     {
     case 1:
-        wscanw(box_input, "%d", &user_key_state);
+        wscanw(box_input, "%d", &tmp_int);
+
+        if (tmp_int != 0 and tmp_int != 1)
+        {
+            set_wrong_input_message("Wrong option.", window_height);
+            break;
+        }
+
+        key_state = tmp_int;
+
         break;
     case 2:
-        wscanw(box_input, "%f", &user_temperature);
+        wscanw(box_input, "%f", &tmp_float);
+
+        if (tmp_float < external_temperature)
+        {
+            set_wrong_input_message("Reference can't be lower than External.", window_height);
+            break;
+        }
+
+        user_temperature = tmp_float;
+
         break;
     case 3:
-        wscanw(box_input, "%d", &user_hysteresis);
+        wscanw(box_input, "%d", &tmp_int);
+
+        if (tmp_int <= 0)
+        {
+            set_wrong_input_message("Invalid hystereses.", window_height);
+            break;
+        }
+
+        user_hysteresis = tmp_int;
         break;
     case 4:
-        mvwprintw(box_input, 4, 3, "Enter the KP");
+        mvwprintw(box_input, start_y + 2, 3, "Enter the KP");
         wrefresh(box_input);
-        wmove(box_input, 6, 3);
+        wmove(box_input, start_y + 4, 3);
         wscanw(box_input, "%d", &user_pid_kp);
 
-        mvwprintw(box_input, 4, 3, "               ");
-        mvwprintw(box_input, 6, 3, "               ");
+        mvwprintw(box_input, start_y + 2, 3, "               ");
+        mvwprintw(box_input, start_y + 4, 3, "               ");
         wrefresh(box_input);
-        mvwprintw(box_input, 4, 3, "Enter the KI");
+        mvwprintw(box_input, start_y + 2, 3, "Enter the KI");
         wrefresh(box_input);
-        wmove(box_input, 6, 3);
+        wmove(box_input, start_y + 4, 3);
         wscanw(box_input, "%d", &user_pid_ki);
 
-        mvwprintw(box_input, 4, 3, "               ");
-        mvwprintw(box_input, 6, 3, "               ");
+        mvwprintw(box_input, start_y + 2, 3, "               ");
+        mvwprintw(box_input, start_y + 4, 3, "               ");
         wrefresh(box_input);
-        mvwprintw(box_input, 4, 3, "Enter the KD");
+        mvwprintw(box_input, start_y + 2, 3, "Enter the KD");
         wrefresh(box_input);
-        wmove(box_input, 6, 3);
+        wmove(box_input, start_y + 4, 3);
         wscanw(box_input, "%d", &user_pid_kd);
 
-        mvwprintw(box_input, 4, 3, "               ");
-        mvwprintw(box_input, 6, 3, "               ");
+        mvwprintw(box_input, start_y + 2, 3, "               ");
+        mvwprintw(box_input, start_y + 4, 3, "               ");
         wrefresh(box_input);
 
         break;
@@ -317,6 +348,19 @@ void Screen::set_input_mode(vector<string> message, int option)
     mvwprintw(box_input, message.size() + 3, 3, "         ");
 
     wrefresh(box_input);
+}
+
+void Screen::set_wrong_input_message(string message, int window_height)
+{
+    string clean_message(message.size(), ' ');
+
+    mvwprintw(box_input, window_height - 4, 3, message.c_str());
+    mvwprintw(box_input, window_height - 2, 3, "This change won't take effect!");
+    wrefresh(box_input);
+    sleep(2);
+
+    mvwprintw(box_input, window_height - 4, 3, clean_message.c_str());
+    mvwprintw(box_input, window_height - 2, 3, "                              ");
 }
 
 void Screen::data_update_deamon()

@@ -63,6 +63,8 @@ private:
 
     void set_input_mode(vector<string> message, int option);
 
+    void set_wrong_input_message(string message, int window_height);
+
 public:
     Screen();
     ~Screen();
