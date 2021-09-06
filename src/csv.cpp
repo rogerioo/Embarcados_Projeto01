@@ -34,7 +34,7 @@ CSV::CSV()
 
     filename << "logs/control_log_"
              << get_time_now("_", "-")
-             << "_.csv";
+             << ".csv";
 
     this->file.open(filename.str(), ios::out | ios::app);
 
