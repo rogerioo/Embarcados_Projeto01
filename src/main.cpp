@@ -46,7 +46,6 @@ void quit(int signal)
     abort_deamon = true;
 
     control_thread->join();
-
     screen_update_thread->join();
     screen_menu_thread->join();
 
@@ -92,9 +91,11 @@ int main(int argc, char *argv[])
 
     display_thread = new thread(&Display::update_display_deamon, display);
 
-    while (1)
-    {
-    }
+    control_thread->join();
+    screen_update_thread->join();
+    screen_menu_thread->join();
+
+    display_thread->join();
 
     return 0;
 }

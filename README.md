@@ -36,9 +36,9 @@ Execute o projeto
     make run
 ```
 
-## A interface
+## Interface
 
-Colocar prints.
+![terminal.png](terminal.png)
 
 ## Entradas e Saídas
 
@@ -96,8 +96,8 @@ Usando como valor do KP, Ki e KD `5` `1` `5`, respectivamente.
 
 ## Referências
 
-[Controle Liga/Desliga - Wikipedia](https://pt.wikipedia.org/wiki/Controle_liga-desliga)  
-[Controle PID - Wikipedia](https://pt.wikipedia.org/wiki/Controlador_proporcional_integral_derivativo)  
-[Driver sensor BME280](https://github.com/bitbank2/bme280)
-[Controle do LCD 16x2 em C](http://www.bristolwatch.com/rpi/i2clcd.htm)
-[PWM via WiringPi](https://www.electronicwings.com/raspberry-pi/raspberry-pi-pwm-generation-using-python-and-c)
+- [Controle Liga/Desliga - Wikipedia](https://pt.wikipedia.org/wiki/Controle_liga-desliga)
+- [Controle PID - Wikipedia](https://pt.wikipedia.org/wiki/Controlador_proporcional_integral_derivativo)
+- [Driver sensor BME280](https://github.com/bitbank2/bme280)
+- [Controle do LCD 16x2 em C](http://www.bristolwatch.com/rpi/i2clcd.htm)
+- [PWM via WiringPi](https://www.electronicwings.com/raspberry-pi/raspberry-pi-pwm-generation-using-python-and-c)
