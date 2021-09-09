@@ -103,7 +103,7 @@ void Screen::set_input_box()
 {
     string title{" INPUT "};
 
-    box_input = newwin(max_height - 6, (max_width / 4) - 2, 6, max_width / 2);
+    box_input = newwin(max_height - 6, (max_width / 4) - 1, 6, max_width / 2);
 
     box(box_input, 0, 0);
 
@@ -120,7 +120,7 @@ void Screen::set_menu()
 
     keypad(stdscr, TRUE);
 
-    box_menu = newwin(max_height - 6, max_width / 2 - 1, 6, 0);
+    box_menu = newwin(max_height - 6, (max_width / 2) - 1, 6, 0);
 
     box(box_menu, 0, 0);
     mvwprintw(box_menu, 0, (max_width / 2) / 2 - title.size() / 2, title.c_str());
